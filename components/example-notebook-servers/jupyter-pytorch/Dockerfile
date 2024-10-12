@@ -2,8 +2,10 @@
 # NOTE: Use the Makefiles to build this image correctly.
 #
 
-ARG BASE_IMG=<jupyter>
-FROM $BASE_IMG
+#ARG BASE_IMG=<jupyter>
+#FROM $BASE_IMG
+
+FROM kubeflownotebookswg/jupyter-pytorch:v1.9.1
 
 # args - software versions
 ARG PYTORCH_VERSION=2.3.0
@@ -20,3 +22,9 @@ RUN python3 -m pip install --quiet --no-cache-dir --index-url https://download.p
 COPY --chown=${NB_USER}:${NB_GID} requirements.txt /tmp
 RUN python3 -m pip install -r /tmp/requirements.txt --quiet --no-cache-dir \
  && rm -f /tmp/requirements.txt
+
+USER root
+RUN apt update && apt install -y sudo openssh-client openssh-server
+RUN echo 'jovyan ALL=NOPASSWD: ALL' >> /etc/sudoers
+USER jovyan
+WORKDIR /home/jovyan
